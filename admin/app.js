@@ -1,5 +1,9 @@
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
 function euros(cents) {
   return (cents / 100).toFixed(2) + " €";
 }
@@ -89,7 +93,7 @@ async function loadWithdrawals() {
     .from("withdrawal_requests")
     .select("*")
     .order("requested_at", { ascending: true });
-  if (error) { el.innerHTML = `<p class="error">${error.message}</p>`; return; }
+  if (error) { el.innerHTML = `<p class="error">${esc(error.message)}</p>`; return; }
   if (!data || data.length === 0) {
     el.innerHTML = `<p class="muted">Aucune demande.</p>`;
     return;
@@ -99,10 +103,10 @@ async function loadWithdrawals() {
       <tr>
         <td>${new Date(w.requested_at).toLocaleDateString()}</td>
         <td>${euros(w.amount_cents)}</td>
-        <td>${w.iban}</td>
-        <td>${w.account_holder_name}</td>
-        <td>${w.status}</td>
-        <td>${w.status === "pending" ? `<button data-id="${w.id}" class="mark-paid-btn">Marquer payé</button>` : ""}</td>
+        <td>${esc(w.iban)}</td>
+        <td>${esc(w.account_holder_name)}</td>
+        <td>${esc(w.status)}</td>
+        <td>${w.status === "pending" ? `<button data-id="${esc(w.id)}" class="mark-paid-btn">Marquer payé</button>` : ""}</td>
       </tr>
     `).join("") + `</table>`;
 
@@ -123,7 +127,7 @@ async function loadWithdrawals() {
 async function loadTickets() {
   const el = document.getElementById("tickets-list");
   const { data, error } = await supa.from("support_tickets").select("*").order("created_at", { ascending: false });
-  if (error) { el.innerHTML = `<p class="error">${error.message}</p>`; return; }
+  if (error) { el.innerHTML = `<p class="error">${esc(error.message)}</p>`; return; }
   if (!data || data.length === 0) {
     el.innerHTML = `<p class="muted">Aucun ticket.</p>`;
     return;
@@ -131,12 +135,12 @@ async function loadTickets() {
   el.innerHTML = data.map((t) => `
     <div style="padding:10px 0;border-bottom:1px solid var(--border);">
       <div style="display:flex;justify-content:space-between;">
-        <strong>${t.email || "(non connecté)"}</strong>
-        <span class="badge ${t.status === "open" ? "bad" : "ok"}">${t.status}</span>
+        <strong>${esc(t.email || "(non connecté)")}</strong>
+        <span class="badge ${t.status === "open" ? "bad" : "ok"}">${esc(t.status)}</span>
       </div>
-      <p>${t.message}</p>
+      <p>${esc(t.message)}</p>
       <p class="muted">${new Date(t.created_at).toLocaleString()}</p>
-      ${t.status === "open" ? `<button data-id="${t.id}" class="close-ticket-btn">Marquer traité</button>` : ""}
+      ${t.status === "open" ? `<button data-id="${esc(t.id)}" class="close-ticket-btn">Marquer traité</button>` : ""}
     </div>
   `).join("");
 

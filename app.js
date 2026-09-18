@@ -6,8 +6,13 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 (function captureReferral() {
   const params = new URLSearchParams(window.location.search);
   const ref = params.get("ref");
-  if (ref) localStorage.setItem("quizbot_referral_code", ref.toUpperCase());
+  const cleaned = (ref || "").toUpperCase();
+  if (/^[A-Z0-9]{4,12}$/.test(cleaned)) localStorage.setItem("quizbot_referral_code", cleaned);
 })();
+
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
 
 function euros(cents) {
   return (cents / 100).toFixed(2) + " €";
@@ -116,11 +121,11 @@ async function loadProducts() {
   const lines = [];
   if (settings.seasonal_promo_active) {
     finalCents -= Math.round(settings.base_price_cents * settings.seasonal_promo_percent);
-    lines.push(`🎉 ${settings.seasonal_promo_label || "Promo en cours"} (-${Math.round(settings.seasonal_promo_percent * 100)}%)`);
+    lines.push(`🎉 ${esc(settings.seasonal_promo_label || "Promo en cours")} (-${Math.round(settings.seasonal_promo_percent * 100)}%)`);
   }
   if (referral_code) {
     finalCents -= Math.round(settings.base_price_cents * settings.referral_discount_percent);
-    lines.push(`👥 Code parrain "${referral_code}" appliqué (-${Math.round(settings.referral_discount_percent * 100)}%)`);
+    lines.push(`👥 Code parrain "${esc(referral_code)}" appliqué (-${Math.round(settings.referral_discount_percent * 100)}%)`);
   }
   finalCents = Math.max(finalCents, 0);
 
@@ -155,16 +160,16 @@ async function loadProducts() {
 async function loadLicenses() {
   const el = document.getElementById("licenses-list");
   const { data, error } = await supa.from("licenses").select("*").order("created_at", { ascending: false });
-  if (error) { el.innerHTML = `<p class="error">${error.message}</p>`; return; }
+  if (error) { el.innerHTML = `<p class="error">${esc(error.message)}</p>`; return; }
   if (!data || data.length === 0) {
     el.innerHTML = `<p class="muted">Aucune licence pour le moment -- va dans l'onglet "Acheter".</p>`;
     return;
   }
   el.innerHTML = data.map((l) => `
     <div style="padding:10px 0;border-bottom:1px solid var(--border);">
-      <span class="license-key">${l.license_key}</span>
+      <span class="license-key">${esc(l.license_key)}</span>
       <span class="badge ${l.disabled ? "bad" : "ok"}">${l.disabled ? "Désactivée" : "Active"}</span>
-      ${l.disabled ? `<p class="muted">${l.disabled_reason || ""}</p>` : ""}
+      ${l.disabled ? `<p class="muted">${esc(l.disabled_reason || "")}</p>` : ""}
     </div>
   `).join("");
 }
@@ -180,14 +185,14 @@ async function loadReferral() {
   try {
     const { code } = await apiCall("get-or-create-referral-code", {});
     const link = `${window.location.origin}${window.location.pathname}?ref=${code}`;
-    linkEl.innerHTML = `<p>Ton code : <strong>${code}</strong></p><p class="muted">${link}</p>
+    linkEl.innerHTML = `<p>Ton code : <strong>${esc(code)}</strong></p><p class="muted">${esc(link)}</p>
       <button id="copy-link-btn">Copier le lien</button>`;
     document.getElementById("copy-link-btn").onclick = () => {
       navigator.clipboard.writeText(link);
       document.getElementById("copy-link-btn").textContent = "Copié !";
     };
   } catch (e) {
-    linkEl.innerHTML = `<p class="error">${e.message}</p>`;
+    linkEl.innerHTML = `<p class="error">${esc(e.message)}</p>`;
   }
 
   const { data: credits } = await supa.from("referral_credits").select("*");
@@ -203,7 +208,7 @@ async function loadReferral() {
   const { data: withdrawals } = await supa.from("withdrawal_requests").select("*").order("requested_at", { ascending: false });
   listEl.innerHTML = (withdrawals && withdrawals.length)
     ? `<table><tr><th>Date</th><th>Montant</th><th>Statut</th></tr>` +
-      withdrawals.map((w) => `<tr><td>${new Date(w.requested_at).toLocaleDateString()}</td><td>${euros(w.amount_cents)}</td><td>${w.status}</td></tr>`).join("") +
+      withdrawals.map((w) => `<tr><td>${new Date(w.requested_at).toLocaleDateString()}</td><td>${euros(w.amount_cents)}</td><td>${esc(w.status)}</td></tr>`).join("") +
       `</table>`
     : `<p class="muted">Aucune demande pour le moment.</p>`;
 }
