@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quizbot -- Admin</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Quizbot -- Admin</h1>
+
+  <div id="auth-section" class="card" hidden>
+    <h3>Connexion admin</h3>
+    <input type="email" id="login-email" placeholder="Email">
+    <input type="password" id="login-password" placeholder="Mot de passe">
+    <button id="login-btn">Se connecter</button>
+    <p class="error" id="auth-error"></p>
+  </div>
+
+  <div id="denied-section" class="card" hidden>
+    <p class="error">Accès refusé -- ce compte n'est pas administrateur.</p>
+    <button class="secondary" id="logout-denied-btn">Déconnexion</button>
+  </div>
+
+  <div id="admin-section" hidden>
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+      <span class="muted">Admin : <strong id="admin-email"></strong></span>
+      <button class="secondary" id="logout-btn">Déconnexion</button>
+    </div>
+
+    <div class="card">
+      <h3>Ventes -- 30 derniers jours</h3>
+      <canvas id="sales-chart" height="90"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>Demandes de retrait en attente</h3>
+      <div id="withdrawals-list" class="muted">Chargement...</div>
+    </div>
+
+    <div class="card">
+      <h3>Tickets support</h3>
+      <div id="tickets-list" class="muted">Chargement...</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

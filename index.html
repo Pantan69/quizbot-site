@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quizbot -- Mon compte</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>Quizbot</h1>
+  <p class="subtitle">Ton compte : licence, parrainage, support.</p>
+
+  <div id="auth-section" class="card" hidden>
+    <div id="auth-forms"></div>
+  </div>
+
+  <div id="app-section" hidden>
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+      <span class="muted">Connecté : <strong id="user-email"></strong></span>
+      <button class="secondary" id="logout-btn">Déconnexion</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn" data-tab="acheter">Acheter</button>
+      <button class="tab-btn" data-tab="licences">Mes licences</button>
+      <button class="tab-btn" data-tab="parrainage">Parrainage</button>
+      <button class="tab-btn" data-tab="support">Support</button>
+    </div>
+
+    <div class="tab-panel" id="tab-acheter">
+      <div class="card">
+        <h3>Choisir une licence</h3>
+        <div id="products-list" class="muted">Chargement...</div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-licences">
+      <div class="card">
+        <h3>Mes licences</h3>
+        <div id="licenses-list" class="muted">Chargement...</div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-parrainage">
+      <div class="card">
+        <h3>Mon lien de parrainage</h3>
+        <p class="muted">10% sur ton 1er filleul, 15% sur les suivants. Parraine 6 amis et
+        tu as récupéré le prix de ta propre licence. Un retrait nécessite au moins 2 ventes
+        disponibles (ça se réinitialise après chaque retrait).</p>
+        <div id="referral-link" class="muted">Chargement...</div>
+      </div>
+      <div class="card">
+        <h3>Mes gains</h3>
+        <div id="referral-balance" class="muted">Chargement...</div>
+        <div id="withdrawal-form" hidden>
+          <hr>
+          <p>Demander un retrait du solde disponible :</p>
+          <input type="text" id="iban-input" placeholder="IBAN">
+          <input type="text" id="holder-input" placeholder="Nom du titulaire du compte">
+          <button id="withdraw-btn">Demander le retrait</button>
+          <p id="withdraw-msg"></p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Historique des retraits</h3>
+        <div id="withdrawals-list" class="muted">Chargement...</div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-support">
+      <div class="card">
+        <h3>Assistant</h3>
+        <div class="chat-log" id="chat-log"></div>
+        <input type="text" id="chat-input" placeholder="Pose ta question...">
+        <button id="chat-send-btn">Envoyer</button>
+        <button class="secondary" id="human-btn" style="margin-left:8px;">👤 Parler à un humain</button>
+      </div>
+      <div class="card" id="human-form" hidden>
+        <h3>Contacter le support</h3>
+        <textarea id="human-message" rows="4" placeholder="Décris ton problème..."></textarea>
+        <button id="human-send-btn">Envoyer la demande</button>
+        <p id="human-msg"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
