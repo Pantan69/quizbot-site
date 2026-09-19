@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Quizbot -- Mon compte</title>
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,6 +15,11 @@
 
   <div id="auth-section" class="card" hidden>
     <div id="auth-forms"></div>
+  </div>
+
+  <div id="goodbye-section" class="card" hidden>
+    <h3>Compte supprimé</h3>
+    <p>Ton compte et tes données personnelles ont été effacés. Merci d'avoir utilisé Quizbot.</p>
   </div>
 
   <div id="app-section" hidden>
@@ -26,6 +33,7 @@
       <button class="tab-btn" data-tab="licences">Mes licences</button>
       <button class="tab-btn" data-tab="parrainage">Parrainage</button>
       <button class="tab-btn" data-tab="support">Support</button>
+      <button class="tab-btn" data-tab="compte">Mon compte</button>
     </div>
 
     <div class="tab-panel" id="tab-acheter">
@@ -38,6 +46,7 @@
     <div class="tab-panel" id="tab-licences">
       <div class="card">
         <h3>Mes licences</h3>
+        <div id="licenses-banner"></div>
         <div id="licenses-list" class="muted">Chargement...</div>
       </div>
     </div>
@@ -46,8 +55,8 @@
       <div class="card">
         <h3>Mon lien de parrainage</h3>
         <p class="muted">10% sur ton 1er filleul, 15% sur les suivants. Parraine 6 amis et
-        tu as récupéré le prix de ta propre licence. Retrait possible à partir de 5€ de solde
-        disponible.</p>
+        tu as récupéré le prix de ta propre licence. Les gains sont retirables après une
+        période de 14 jours (délai de rétractation de l'acheteur), à partir de 5€ de solde disponible.</p>
         <div id="referral-link" class="muted">Chargement...</div>
       </div>
       <div class="card">
@@ -55,9 +64,9 @@
         <div id="referral-balance" class="muted">Chargement...</div>
         <div id="withdrawal-form" hidden>
           <hr>
-          <p>Demander un retrait du solde disponible :</p>
-          <input type="text" id="iban-input" placeholder="IBAN">
-          <input type="text" id="holder-input" placeholder="Nom du titulaire du compte">
+          <p>Demander un retrait du solde disponible (traité sous 3 jours ouvrés, hors délais bancaires) :</p>
+          <input type="text" id="iban-input" placeholder="IBAN" autocomplete="off" maxlength="40">
+          <input type="text" id="holder-input" placeholder="Nom du titulaire du compte" autocomplete="off" maxlength="80">
           <button id="withdraw-btn">Demander le retrait</button>
           <p id="withdraw-msg"></p>
         </div>
@@ -72,21 +81,49 @@
       <div class="card">
         <h3>Assistant</h3>
         <div class="chat-log" id="chat-log"></div>
-        <input type="text" id="chat-input" placeholder="Pose ta question...">
+        <input type="text" id="chat-input" placeholder="Pose ta question..." maxlength="1000">
         <button id="chat-send-btn">Envoyer</button>
         <button class="secondary" id="human-btn" style="margin-left:8px;">👤 Parler à un humain</button>
       </div>
       <div class="card" id="human-form" hidden>
         <h3>Contacter le support</h3>
-        <textarea id="human-message" rows="4" placeholder="Décris ton problème..."></textarea>
+        <textarea id="human-message" rows="4" placeholder="Décris ton problème..." maxlength="4000"></textarea>
         <button id="human-send-btn">Envoyer la demande</button>
         <p id="human-msg"></p>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-compte">
+      <div class="card">
+        <h3>Mon profil</h3>
+        <p class="muted">Ton nom et prénom servent uniquement à vérifier ton identité (retraits, réactivation de licence).</p>
+        <input type="text" id="first-name-input" placeholder="Prénom" maxlength="80" autocomplete="given-name">
+        <input type="text" id="last-name-input" placeholder="Nom" maxlength="80" autocomplete="family-name">
+        <button id="save-profile-btn">Enregistrer</button>
+        <p id="profile-msg"></p>
+      </div>
+      <div class="card">
+        <h3>Changer mon mot de passe</h3>
+        <input type="password" id="new-password-input" placeholder="Nouveau mot de passe (10 caractères minimum)" autocomplete="new-password" maxlength="72">
+        <button id="change-password-btn">Changer le mot de passe</button>
+        <p id="password-msg"></p>
+      </div>
+      <div class="card" style="border-color:var(--danger);">
+        <h3 style="color:var(--danger);">Supprimer mon compte</h3>
+        <p class="muted">Cette action est <strong>définitive</strong>. Elle efface ton profil, ton nom, ton code de parrainage,
+        tes messages de support et tes coordonnées bancaires. Ta licence est désactivée (le logiciel cessera de fonctionner).
+        Seules subsistent, sans lien avec toi, les écritures comptables de vente que la loi impose de conserver.
+        Les gains de parrainage non versés sont perdus : retire-les d'abord si besoin.</p>
+        <input type="email" id="delete-email-input" placeholder="Tape ton adresse email pour confirmer" autocomplete="off">
+        <input type="password" id="delete-password-input" placeholder="Ton mot de passe" autocomplete="current-password">
+        <button class="danger" id="delete-account-btn">Supprimer définitivement mon compte</button>
+        <p id="delete-msg"></p>
       </div>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="vendor/supabase-js-2.116.0.js"></script>
 <script src="config.js"></script>
 <script src="app.js"></script>
 </body>
