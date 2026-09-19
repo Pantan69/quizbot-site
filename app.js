@@ -226,6 +226,8 @@ async function loadProducts() {
         &nbsp;<strong style="font-size:1.3rem;">${euros(finalCents)}</strong>
       </p>
       ${lines.map((l) => `<p class="muted">${l}</p>`).join("")}
+      <p class="muted">✅ <strong>Testé, sinon remboursé</strong> : essaie ${esc(settings.trial_questions)} questions sur ta propre session ;
+      si ça ne te convient pas, remboursement sans condition sous ${esc(settings.withdrawal_days)} jours.</p>
       ${hasReferrer ? "" : `
         <div style="margin:12px 0;">
           <input type="text" id="buy-ref-input" placeholder="Code parrain (optionnel)" value="${esc(code || "")}" maxlength="12" autocomplete="off" style="max-width:240px;">
@@ -266,24 +268,125 @@ async function loadProducts() {
 }
 
 // ---------------------------------------------------------------------
-// Mes licences
+// Mes licences : essai gratuit, renonciation au droit de rétractation, remboursement
 // ---------------------------------------------------------------------
+// Version du texte ci-dessous : envoyée avec la renonciation et conservée en base comme PREUVE de ce qui a été
+// accepté. À incrémenter à chaque modification du texte (le serveur refuse une version qu'il ne connaît pas).
+const WAIVER_VERSION = "2026-09-v1";
+const WAIVER_TEXT = "Je demande l'exécution immédiate du contrat, c'est-à-dire l'accès complet et illimité au logiciel, " +
+  "avant la fin du délai de rétractation de 14 jours. Je reconnais qu'en cas d'exécution complète du contrat avec mon accord " +
+  "préalable exprès, je perds mon droit de rétractation (article L221-28, 13° du Code de la consommation) : ma licence ne sera " +
+  "plus remboursable au titre du droit de rétractation.";
+
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+}
+
+function waiverBoxHtml(id, buttonLabel) {
+  return `
+    <div class="waiver-box" data-license="${esc(id)}">
+      <label style="display:flex;gap:8px;align-items:flex-start;margin:10px 0;">
+        <input type="checkbox" class="waiver-check" style="width:auto;margin-top:4px;">
+        <span>${esc(WAIVER_TEXT)}</span>
+      </label>
+      <button class="waive-btn" disabled>${esc(buttonLabel)}</button>
+    </div>`;
+}
+
+function licenseCardHtml(l, trialLimit) {
+  const deadline = fmtDate(l.withdrawal_deadline);
+  let badge, body;
+  if (l.disabled) {
+    badge = `<span class="badge bad">Désactivée</span>`;
+    body = `<p class="muted">${esc(l.disabled_reason || "")}</p>`;
+  } else if (l.mode === "full") {
+    badge = `<span class="badge ok">Licence complète</span>`;
+    body = `<p class="muted">Utilisation complète activée. ${l.waived
+      ? "Tu as renoncé à ton droit de rétractation."
+      : "Le délai de rétractation est écoulé."}</p>`;
+  } else if (l.mode === "trial") {
+    const pct = Math.round((l.questions_used / trialLimit) * 100);
+    badge = `<span class="badge trial">Essai en cours</span>`;
+    body = `
+      <p>Essai : <strong>${l.questions_used} / ${trialLimit}</strong> questions utilisées.</p>
+      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <p class="muted">Teste le bot sur ta propre session : si tu n'es pas satisfait, tu es <strong>remboursé sans condition</strong>
+      jusqu'au ${esc(deadline)}.</p>
+      <details><summary>Passer à l'utilisation complète dès maintenant</summary>${waiverBoxHtml(l.id, "Je renonce à mon droit de rétractation et je débloque le bot")}</details>`;
+  } else if (l.mode === "trial_exhausted") {
+    badge = `<span class="badge warn">Essai terminé</span>`;
+    body = `
+      <p><strong>Ton essai gratuit de ${trialLimit} questions est terminé.</strong> Pour continuer, choisis :</p>
+      ${waiverBoxHtml(l.id, "Oui, je renonce à mon droit de rétractation et je débloque le bot")}
+      <p><button class="secondary decline-btn" data-license="${esc(l.id)}">Non, je conserve mon droit de rétractation</button></p>
+      <p class="muted">Si tu conserves ton droit, le bot reste <strong>bloqué</strong> : tu peux demander le remboursement, ou attendre le
+      ${esc(deadline)} (déblocage automatique).</p>`;
+  } else { // blocked
+    badge = `<span class="badge bad">Bloquée</span>`;
+    body = l.refund_requested
+      ? `<p>Remboursement demandé : il est en cours de traitement. Le bot est bloqué.</p>`
+      : `<p><strong>Utilisation bloquée</strong> : tu as choisi de conserver ton droit de rétractation.
+         Le bot sera débloqué automatiquement le <strong>${esc(deadline)}</strong>, ou tu peux :</p>
+         ${waiverBoxHtml(l.id, "Renoncer à mon droit de rétractation et débloquer le bot maintenant")}`;
+  }
+  const canRefund = !l.disabled && !l.waived && !l.refund_requested && new Date(l.withdrawal_deadline) > new Date();
+  return `
+    <div class="license-card" data-license-id="${esc(l.id)}">
+      <div class="license-head"><span class="license-key">${esc(l.license_key)}</span> ${badge}</div>
+      ${body}
+      ${canRefund ? `<p><button class="secondary refund-btn" data-license="${esc(l.id)}">Demander le remboursement</button></p>` : ""}
+      <p class="muted">Téléchargement du logiciel : bientôt disponible.</p>
+    </div>`;
+}
+
 async function loadLicenses() {
   const el = document.getElementById("licenses-list");
-  const { data, error } = await supa.from("licenses").select("*").order("created_at", { ascending: false });
-  if (error) { el.innerHTML = `<p class="error">${esc(error.message)}</p>`; return 0; }
-  if (!data || data.length === 0) {
+  let data;
+  try {
+    data = await apiCall("my-licenses", {});
+  } catch (e) {
+    el.innerHTML = `<p class="error">${esc(e.message)}</p>`;
+    return 0;
+  }
+  if (!data.licenses || data.licenses.length === 0) {
     el.innerHTML = `<p class="muted">Aucune licence pour le moment -- va dans l'onglet "Acheter".</p>`;
     return 0;
   }
-  el.innerHTML = data.map((l) => `
-    <div style="padding:10px 0;border-bottom:1px solid var(--border);">
-      <span class="license-key">${esc(l.license_key)}</span>
-      <span class="badge ${l.disabled ? "bad" : "ok"}">${l.disabled ? "Désactivée" : "Active"}</span>
-      ${l.disabled ? `<p class="muted">${esc(l.disabled_reason || "")}</p>` : ""}
-    </div>
-  `).join("");
-  return data.length;
+  el.innerHTML = data.licenses.map((l) => licenseCardHtml(l, data.trial_limit)).join("");
+
+  // Le bouton de renonciation reste inactif tant que la case n'est pas cochée.
+  el.querySelectorAll(".waiver-box").forEach((box) => {
+    const check = box.querySelector(".waiver-check");
+    const btn = box.querySelector(".waive-btn");
+    check.addEventListener("change", () => { btn.disabled = !check.checked; });
+    btn.addEventListener("click", async () => {
+      if (!check.checked) return;
+      if (!window.confirm("Dernière confirmation : tu renonces à ton droit de rétractation et ta licence ne sera plus remboursable. Continuer ?")) return;
+      btn.disabled = true;
+      try {
+        await apiCall("waive-withdrawal", { license_id: box.dataset.license, accept: true, version: WAIVER_VERSION });
+        loadLicenses();
+      } catch (e) {
+        window.alert(e.message);
+        btn.disabled = false;
+      }
+    });
+  });
+  el.querySelectorAll(".decline-btn").forEach((btn) => btn.addEventListener("click", async () => {
+    if (!window.confirm("Tu conserves ton droit de rétractation : le bot restera BLOQUÉ jusqu'à ton remboursement ou jusqu'à la fin du délai de 14 jours. Confirmer ?")) return;
+    try {
+      await apiCall("decline-waiver", { license_id: btn.dataset.license });
+      loadLicenses();
+    } catch (e) { window.alert(e.message); }
+  }));
+  el.querySelectorAll(".refund-btn").forEach((btn) => btn.addEventListener("click", async () => {
+    if (!window.confirm("Demander le remboursement de cette licence ? Le bot sera bloqué immédiatement.")) return;
+    try {
+      await apiCall("request-refund", { license_id: btn.dataset.license });
+      loadLicenses();
+    } catch (e) { window.alert(e.message); }
+  }));
+  return data.licenses.length;
 }
 
 // Retour de Stripe (?purchased=1) : la licence est créée par le webhook, quelques secondes après le paiement.
