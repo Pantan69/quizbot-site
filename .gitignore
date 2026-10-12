@@ -1,0 +1,20 @@
+# Dépôt PUBLIC : rien de privé ne doit jamais y entrer.
+
+# Plans et notes de travail (privés, vivent dans le dépôt word-quiz-bot)
+.planning/
+RESTE_A_FAIRE.md
+
+# Secrets et fichiers d'environnement (jamais de clé dans un dépôt public)
+.env
+.env.*
+secrets.env
+
+# Outils et dossiers générés
+node_modules/
+.wrangler/
+shots/
+__pycache__/
+
+# Fichiers système
+Thumbs.db
+.DS_Store
