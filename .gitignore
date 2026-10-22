@@ -18,3 +18,8 @@ __pycache__/
 # Fichiers système
 Thumbs.db
 .DS_Store
+
+# Notes de design de la vitrine (privées : elles vivent dans le dépôt word-quiz-bot, docs/design/)
+PRODUCT.md
+DESIGN.md
+.impeccable/
