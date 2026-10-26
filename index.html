@@ -8,8 +8,8 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#10321a">
-<meta name="description" content="Quizbot t’aide à répondre aux exercices d’orthographe et de vocabulaire du Projet Voltaire. Testé, sinon remboursé : 20 questions d’essai.">
-<title>Quizbot – Un coup de pouce pour tes exercices d’orthographe</title>
+<meta name="description" content="Quizbot est un outil d’aide à l’orthographe qui t’aide à répondre aux exercices de type Voltaire. Satisfait ou remboursé pendant 14 jours, sans condition.">
+<title>Quizbot – Satisfait ou remboursé pendant 14 jours</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/vitrine.css">
 </head>
@@ -24,9 +24,10 @@
         <span>Quizbot</span>
       </a>
       <nav class="nav" aria-label="Principal">
+        <a href="#essai">Satisfait ou remboursé</a>
         <a href="#etapes">Comment ça marche</a>
-        <a href="#essai">Testé, sinon remboursé</a>
-        <a href="#compatibilite">Compatibilité</a>
+        <a href="#prix">Prix</a>
+        <a href="#parrainage">Parrainage</a>
         <a href="#faq">Questions</a>
       </nav>
       <div class="header-actions">
@@ -39,43 +40,78 @@
   <section class="hero" aria-labelledby="titre-hero">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <h1 id="titre-hero">Tes exercices Voltaire, avec <span class="nb"><mark>un coup de pouce</mark>.</span></h1>
-        <p class="lead">Quizbot t’aide à répondre aux exercices d’orthographe et de vocabulaire du Projet&nbsp;Voltaire, directement dans ton Chrome. Tu l’essaies sur 20&nbsp;questions&nbsp;: <strong>si ça ne te convient pas, tu es remboursé.</strong></p>
+        <h1 id="titre-hero">Satisfait ou remboursé pendant <span class="nb"><mark>14 jours</mark>,</span> sans condition.</h1>
+        <p class="lead">Quizbot est un outil d’aide à l’orthographe&nbsp;: il t’aide à répondre aux exercices d’entraînement de type Voltaire, directement dans ton Chrome. <strong>Ça ne te convient pas&nbsp;? On te rembourse.</strong></p>
         <div class="actions">
           <a class="btn btn-mark btn-lg" href="/compte/">Créer mon compte</a>
-          <a class="btn-link" href="#etapes">Voir les 4 étapes</a>
+          <a class="btn-link" href="#essai">Voir comment ça marche</a>
         </div>
         <p class="hero-note">Pour Windows et Mac, avec Google Chrome.</p>
       </div>
 
-      <figure class="trial">
-        <div class="trial-card" role="img" aria-label="Illustration simplifiée de ton espace compte : un essai en cours avec 7 questions utilisées sur 20, puis deux issues possibles. Si ça te convient, tu débloques le bot sans limite. Si tu n’es pas convaincu, tu es remboursé.">
-          <div class="trial-top" aria-hidden="true">
-            <span class="badge-trial">Essai en cours</span>
-            <span class="trial-count"><b>7</b> / 20 questions</span>
+      <figure class="proof">
+        <div class="proof-card" role="img" aria-label="Illustration, maquette d’exemple : la phrase « Ils ont manger des pommes » est corrigée en « Ils ont mangé des pommes », puis validée.">
+          <div class="proof-row" aria-hidden="true">
+            <p class="proof-label">Phrase écrite</p>
+            <p class="sentence">Ils ont <span class="wrong">manger</span> des pommes.</p>
           </div>
-          <ol class="cells" aria-hidden="true">
-            <li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li>
-            <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
-          </ol>
-          <div class="outs" aria-hidden="true">
-            <div class="out out-yes">
-              <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M7.5 12.5l3 3 6-7"/></svg>
-              <p><b>Ça te convient&nbsp;?</b> Tu débloques le bot, sans limite de questions.</p>
-            </div>
-            <div class="out out-no">
-              <svg class="i" viewBox="0 0 24 24"><path d="M9 5L4 10l5 5"/><path d="M4 10h9a6 6 0 010 12h-3" transform="translate(0 -3)"/></svg>
-              <p><b>Pas convaincu&nbsp;?</b> Tu demandes le remboursement.</p>
+          <div class="proof-row" aria-hidden="true">
+            <p class="proof-label">Phrase corrigée</p>
+            <p class="sentence">Ils ont <span class="fix">mangé</span> des pommes.</p>
+            <div class="proof-ok">
+              <svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="14" fill="#2e7d32"/><path d="M8 14.5l4 4 8-9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Phrase validée</span>
             </div>
           </div>
         </div>
-        <figcaption class="figcap">Illustration : aperçu simplifié de ton espace compte.</figcaption>
+        <figcaption class="figcap">Illustration : maquette d’exemple, ce n’est pas une capture de Quizbot.</figcaption>
       </figure>
     </div>
   </section>
 </div>
 
 <main id="contenu">
+
+  <section id="essai" class="band band-mid section on-forest" aria-labelledby="titre-essai">
+    <div class="wrap">
+      <div class="essai-head">
+        <h2 id="titre-essai" class="h2">Testé, <span class="nb"><mark>sinon remboursé</mark>.</span></h2>
+        <p class="lead">Tu paies, tu essaies, tu décides. Tu as 14&nbsp;jours pour te faire ton idée, et tu ne renonces à rien tant que tu n’as pas choisi de continuer.</p>
+      </div>
+
+      <ol class="flow">
+        <li>
+          <h3>Tu achètes ta licence</h3>
+          <p>Tu paies en ligne depuis ton espace, puis tu télécharges Quizbot. Ton délai de 14&nbsp;jours démarre à l’achat.</p>
+        </li>
+        <li>
+          <h3>Tu essaies</h3>
+          <p>À partir du premier lancement, tu disposes d’une réserve d’une trentaine de questions offertes pour tester l’outil.</p>
+          <div class="meter-card" role="img" aria-label="Illustration simplifiée de ton espace compte : un essai en cours, avec une partie de la réserve de questions déjà utilisée.">
+            <div class="meter-top" aria-hidden="true">
+              <span class="badge-trial">Essai en cours</span>
+              <span class="meter-txt">Réserve d’essai</span>
+            </div>
+            <div class="meter" aria-hidden="true"><span class="meter-fill"></span></div>
+            <div class="meter-ends" aria-hidden="true"><span>Premier lancement</span><span>Fin de l’essai</span></div>
+          </div>
+          <p class="figcap">Illustration : aperçu simplifié de ton espace compte.</p>
+        </li>
+        <li>
+          <h3>Tu décides</h3>
+          <div class="choice choice-yes">
+            <h4>Je suis satisfait</h4>
+            <p>Je renonce à mon droit de rétractation de 14&nbsp;jours et j’utilise Quizbot dans son ensemble, sans restriction.</p>
+          </div>
+          <p class="or" aria-hidden="true">ou</p>
+          <div class="choice choice-no">
+            <h4>Je veux attendre, réfléchir ou me rétracter</h4>
+            <p>Je suis remboursé, sans condition, si je le demande. En attendant, Quizbot reste verrouillé.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
 
   <section id="etapes" class="section" aria-labelledby="titre-etapes">
     <div class="wrap steps-grid">
@@ -99,7 +135,7 @@
           <div>
             <h3><span class="sr">Étape 2 : </span>Achète ta licence</h3>
             <p>Depuis ton espace, tu choisis ta licence et tu paies en ligne. Le prix final est calculé à ce moment-là (voir plus bas).</p>
-            <span class="chip chip-blue">Garantie « testé, sinon remboursé »</span>
+            <span class="chip chip-blue">Satisfait ou remboursé, 14 jours</span>
           </div>
         </li>
         <li>
@@ -114,8 +150,8 @@
           <span class="node" aria-hidden="true">4</span>
           <div>
             <h3><span class="sr">Étape 4 : </span>Lance-le et essaie</h3>
-            <p>Ouvre Chrome, lance Quizbot et teste-le sur 20&nbsp;questions. Ensuite, tu décides&nbsp;: continuer, ou être remboursé.</p>
-            <span class="chip chip-blue">20 questions d’essai</span>
+            <p>Ouvre Chrome, lance Quizbot et teste-le avec ta réserve d’une trentaine de questions offertes. Ensuite, tu décides&nbsp;: continuer, ou être remboursé.</p>
+            <span class="chip chip-blue">Réserve d’essai offerte</span>
           </div>
         </li>
       </ol>
@@ -126,7 +162,7 @@
     <div class="wrap">
       <div class="demo-head">
         <h2 id="titre-demo" class="h2">Voir Quizbot en action</h2>
-        <p class="sub">Une courte vidéo de démonstration, étape par étape.</p>
+        <p class="sub">Une courte vidéo de démonstration, pour comprendre en un coup d’œil.</p>
       </div>
       <div class="demo-frame" role="img" aria-label="Emplacement de la vidéo de démonstration, bientôt disponible">
         <div>
@@ -135,45 +171,6 @@
           <span>On y montrera Quizbot au travail, du lancement à la première question.</span>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section id="essai" class="band section on-forest" aria-labelledby="titre-essai">
-    <div class="wrap">
-      <div class="essai-head">
-        <h2 id="titre-essai" class="h2">Testé, <span class="nb"><mark>sinon remboursé</mark>.</span></h2>
-        <p class="lead">Tu paies, tu essaies, tu décides. Voici exactement comment ça se passe, sans petites lignes cachées.</p>
-      </div>
-
-      <ol class="flow">
-        <li>
-          <h3>Tu achètes ta licence</h3>
-          <p>Tu paies en ligne depuis ton espace. Ta licence est active tout de suite&nbsp;: tu télécharges Quizbot et tu le lances.</p>
-        </li>
-        <li>
-          <h3>Tu essaies 20 questions</h3>
-          <p>Les 20 premières questions sont une période d’essai, sur ta propre session. Tu vois si l’outil te convient avant de t’engager plus loin.</p>
-          <ol class="cells" aria-label="20 questions d’essai">
-            <li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li>
-            <li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li><li class="on"></li>
-          </ol>
-          <div class="trial-ends" aria-hidden="true"><span>1</span><span>20</span></div>
-        </li>
-        <li>
-          <h3>Tu décides</h3>
-          <div class="choice choice-yes">
-            <h4>Ça te convient</h4>
-            <p>Tu coches la case par laquelle tu renonces à ton droit de rétractation de 14&nbsp;jours. Le bot est débloqué, sans limite de questions.</p>
-          </div>
-          <p class="or" aria-hidden="true">ou</p>
-          <div class="choice choice-no">
-            <h4>Ça ne te convient pas</h4>
-            <p>Tu ne coches rien et tu demandes le remboursement depuis ton espace. Le bot est bloqué et tu es remboursé.</p>
-          </div>
-        </li>
-      </ol>
-
-      <p class="fineprint"><strong>Pourquoi cette case&nbsp;?</strong> Pour un logiciel qu’on commence à utiliser tout de suite, la loi demande ton accord exprès pour que ton droit de rétractation de 14&nbsp;jours s’éteigne. C’est pour ça que la case est nécessaire pour aller au-delà de l’essai. Elle n’est jamais cochée à ta place, et tu peux toujours choisir de garder ton droit.</p>
     </div>
   </section>
 
@@ -191,10 +188,33 @@
         </div>
         <div>
           <h3>Chrome</h3>
-          <p>Requis. Quizbot travaille dans ton navigateur Google Chrome, avec ta propre session Projet&nbsp;Voltaire.</p>
+          <p>Requis. Quizbot travaille dans ton navigateur Google Chrome, avec ta propre session sur le site d’entraînement.</p>
         </div>
       </div>
-      <p class="compat-note">Sur ordinateur uniquement&nbsp;: il n’y a pas de version pour téléphone ni pour tablette.</p>
+      <p class="compat-note">Sur ordinateur uniquement&nbsp;: pas de version pour téléphone ni pour tablette pour l’instant.</p>
+
+      <div class="videos">
+        <div>
+          <h3>Installer Quizbot</h3>
+          <div class="demo-frame small" role="img" aria-label="Emplacement de la vidéo d’installation, bientôt disponible">
+            <div>
+              <svg class="i" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28"/><path d="M26 21l18 11-18 11z"/></svg>
+              <strong>Vidéo d’installation : bientôt</strong>
+              <span>Pas à pas, pour Windows et pour Mac.</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>Utiliser Quizbot</h3>
+          <div class="demo-frame small" role="img" aria-label="Emplacement de la vidéo d’utilisation, bientôt disponible">
+            <div>
+              <svg class="i" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28"/><path d="M26 21l18 11-18 11z"/></svg>
+              <strong>Vidéo d’utilisation : bientôt</strong>
+              <span>Du premier lancement à ta première réponse.</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -202,21 +222,62 @@
     <div class="wrap price-grid">
       <div class="price-panel">
         <h2 id="titre-prix" class="h2">Le prix</h2>
-        <div class="price-row">
-          <span class="price">44,99&nbsp;€</span>
-          <span class="price-old"><span class="sr">au lieu de </span>49,99&nbsp;€</span>
+        <div class="tag-row">
+          <span class="chip chip-blue">Offre de rentrée</span>
+          <span class="chip chip-warn">Prix provisoire</span>
         </div>
-        <p class="tag-row"><span class="chip chip-warn">Prix provisoire</span></p>
+        <div class="price-row">
+          <span class="price-old"><span class="sr">Au lieu de </span>49,99&nbsp;€</span>
+          <span class="price">44,99&nbsp;€</span>
+        </div>
         <p class="note">Prix indicatif, susceptible de changer avant l’ouverture. Le prix final est calculé au moment du paiement, et tu peux y saisir un code parrain si un ami t’en a donné un.</p>
+        <p class="note">Paliers de prix : <span class="todo">[à confirmer]</span></p>
         <a class="btn btn-primary" href="/compte/">Créer mon compte</a>
       </div>
 
+      <div class="included">
+        <h3>Ce que comprend ta licence</h3>
+        <ul>
+          <li>
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>
+            <span><strong>Satisfait ou remboursé pendant 14&nbsp;jours,</strong> sans condition.</span>
+          </li>
+          <li>
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>
+            <span><strong>Une réserve d’essai offerte</strong> d’une trentaine de questions, dès le premier lancement.</span>
+          </li>
+          <li>
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>
+            <span><strong>Quizbot pour Windows et pour Mac,</strong> à utiliser avec Google Chrome.</span>
+          </li>
+          <li>
+            <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>
+            <span><strong>Ton espace personnel</strong> pour gérer ta licence, ton parrainage et le support.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="parrainage" class="section section-flush" aria-labelledby="titre-parrainage">
+    <div class="wrap refer-grid">
       <div class="refer">
-        <h2 class="h2">Parraine, gagne une commission</h2>
-        <p>Une fois ton compte créé, tu reçois ton propre lien de parrainage. Quand quelqu’un achète avec ton code, tu touches une commission. Les conditions sont détaillées dans ton espace.</p>
-        <div class="rule">
-          <p class="avis">Les avis de vrais utilisateurs s’afficheront ici dès qu’il y en aura. Aucun avis n’est affiché pour l’instant.</p>
-        </div>
+        <h2 id="titre-parrainage" class="h2">Parraine tes amis, gagne une commission</h2>
+        <p class="sub">Une fois ton compte créé, tu reçois ton propre lien de parrainage. Quand un ami achète avec ton code, il profite d’une remise et tu touches une commission. Plus tu parraines, plus tu gagnes.</p>
+        <p class="avis">Les avis de vrais utilisateurs s’afficheront ici dès qu’il y en aura. Aucun avis n’est affiché pour l’instant.</p>
+      </div>
+
+      <div>
+        <ol class="ladder">
+          <li><b>Un ami achète avec ton code</b> <span>Tu gagnes <span class="todo">[montant à confirmer]</span></span></li>
+          <li><b>Deux amis</b> <span>Tu gagnes <span class="todo">[montant à confirmer]</span></span></li>
+          <li><b>Trois amis et plus</b> <span>Tu gagnes <span class="todo">[palier à confirmer]</span></span></li>
+        </ol>
+        <ul class="refer-notes">
+          <li>Remise pour ton filleul&nbsp;: <span class="todo">[montant à confirmer]</span></li>
+          <li>Tes gains sont retirables une fois le délai de rétractation de ton filleul écoulé, à partir d’un seuil de <span class="todo">[montant à confirmer]</span>.</li>
+          <li>Les montants définitifs seront affichés ici avant l’ouverture, et détaillés dans ton espace.</li>
+        </ul>
       </div>
     </div>
   </section>
@@ -232,39 +293,42 @@
         <details>
           <summary>Est-ce que j’ai le droit de l’utiliser&nbsp;?</summary>
           <div class="answer">
-            <p>Quizbot est un outil d’aide à l’orthographe, indépendant de Projet&nbsp;Voltaire (non affilié, non approuvé par lui). Tu es seul responsable de l’usage que tu en fais, y compris vis-à-vis des règles de Projet&nbsp;Voltaire et de celles de ton établissement.</p>
-            <p>Nous ne pouvons pas te garantir que cet usage est permis dans ta situation&nbsp;: renseigne-toi avant d’acheter.</p>
+            <p>Quizbot est un outil d’aide à l’orthographe, indépendant. Il n’a aucun lien ni aucune affiliation avec les plateformes qui entraînent ou certifient des compétences en orthographe. Il peut servir à corriger l’orthographe de tes rédactions comme à passer ou créer des tests d’orthographe.</p>
+            <p>Tu es seul responsable de l’usage que tu en fais, y compris vis-à-vis des règles des plateformes ou des projets sur lesquels tu l’utilises, et de celles de ton établissement ou de ta structure. Nous ne pouvons pas garantir que cet usage est permis dans ta situation&nbsp;: renseigne-toi bien avant d’acheter.</p>
           </div>
         </details>
         <details>
-          <summary>Ma licence est-elle liée à mon compte Projet&nbsp;Voltaire&nbsp;?</summary>
+          <summary>Ma licence est-elle liée à mon compte&nbsp;?</summary>
           <div class="answer">
-            <p>Oui. Une licence correspond à un seul compte Projet&nbsp;Voltaire, auquel elle se lie au premier lancement (Quizbot te demande de confirmer à l’écran). Tu n’as pas à nous donner ton mot de passe Voltaire&nbsp;: tu te connectes toi-même dans Chrome.</p>
+            <p>Une licence correspond à un seul compte Quizbot. Au premier lancement, Quizbot rattache ta licence au compte du site d’entraînement que tu utilises (type Voltaire), avec ta confirmation à l’écran. Tu n’as pas à nous donner ton mot de passe&nbsp;: tu te connectes toi-même dans Chrome.</p>
+            <p>Tu peux utiliser ton compte Quizbot depuis plusieurs de tes ordinateurs personnels sans problème. En revanche, une fois rattachée, ta licence ne fonctionne qu’avec ce compte du site d’entraînement&nbsp;: tu ne peux pas l’utiliser avec un autre compte.</p>
+            <p>En cas de tentative sur un autre compte, tu reçois un avertissement la première fois, puis la deuxième&nbsp;; la troisième fois, la licence est bloquée, sans remboursement (détail dans les <a href="/cgu/">conditions d’utilisation</a>).</p>
           </div>
         </details>
         <details>
           <summary>Puis-je prêter ou partager ma licence&nbsp;?</summary>
           <div class="answer">
-            <p>Non. La licence est personnelle. La partager, la prêter ou la revendre est interdit et peut entraîner sa désactivation.</p>
+            <p>Non. La licence est personnelle. La partager, la prêter ou la revendre est interdit et peut entraîner sa désactivation, voire des poursuites.</p>
           </div>
         </details>
         <details>
           <summary>Comment fonctionne le remboursement&nbsp;?</summary>
           <div class="answer">
-            <p>Après l’achat, tu as 20&nbsp;questions d’essai. Si tu ne coches pas la case de renonciation à ton droit de rétractation, tu gardes ce droit pendant 14&nbsp;jours&nbsp;: tu peux demander le remboursement depuis ton espace, et le bot est alors bloqué.</p>
-            <p>Si tu coches la case pour continuer, tu renonces à ce droit&nbsp;: la licence n’est plus remboursable à ce titre. C’est donc à toi de bien tester avant.</p>
+            <p>Satisfait ou remboursé pendant 14&nbsp;jours, sans condition. Tu disposes d’abord d’une réserve d’une trentaine de questions offertes pour te faire une idée.</p>
+            <p>Passé cet essai, tu as le choix&nbsp;: continuer dès maintenant en renonçant à ton droit de rétractation, ou attendre. Si tu attends, Quizbot reste verrouillé jusqu’à ton remboursement ou jusqu’au terme des 14&nbsp;jours, où il se débloque automatiquement.</p>
+            <p>Si tu choisis de continuer, tu renonces à ce droit&nbsp;: la licence n’est plus remboursable à ce titre. Mieux vaut donc bien tester avant.</p>
           </div>
         </details>
         <details>
           <summary>Est-ce que ça me garantit un résultat&nbsp;?</summary>
           <div class="answer">
-            <p>Non. Quizbot t’aide à répondre, mais il ne promet ni un score, ni une progression, ni une certification. Il peut aussi se tromper, ou cesser de fonctionner si le site de Projet&nbsp;Voltaire change.</p>
+            <p>Non. Quizbot t’aide à répondre, mais il ne promet ni un score précis, ni une progression, ni une certification. Il peut se tromper, ou cesser de fonctionner avec certaines plateformes. Des mises à jour régulières visent à garder un fonctionnement normal, sans pouvoir le garantir.</p>
           </div>
         </details>
         <details>
           <summary>Puis-je l’utiliser sur mon téléphone, ou sans Chrome&nbsp;?</summary>
           <div class="answer">
-            <p>Non. Quizbot est une application pour ordinateur Windows ou Mac, et il a besoin de Google Chrome pour fonctionner.</p>
+            <p>Pas pour l’instant. Quizbot est une application pour ordinateur Windows ou Mac, et il a besoin de Google Chrome pour fonctionner.</p>
           </div>
         </details>
       </div>
@@ -274,7 +338,7 @@
   <section class="band final on-forest" aria-labelledby="titre-final">
     <div class="wrap">
       <h2 id="titre-final" class="h2">Prêt à l’essayer&nbsp;?</h2>
-      <p>Crée ton compte, puis essaie Quizbot sur 20 questions. Si ça ne te convient pas, tu es remboursé.</p>
+      <p>Crée ton compte, puis essaie Quizbot. Si ça ne te convient pas, tu es remboursé pendant 14&nbsp;jours, sans condition.</p>
       <a class="btn btn-mark btn-lg" href="/compte/">Créer mon compte</a>
     </div>
   </section>
@@ -287,7 +351,7 @@
         <svg viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="7" fill="#dcf56a"/><path d="M7.5 14.5l4.2 4.2L20.5 9.5" fill="none" stroke="#10321a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Quizbot</span>
       </a>
-      <p>Quizbot est un nom provisoire. Outil indépendant d’aide à l’orthographe, non affilié à Projet&nbsp;Voltaire.</p>
+      <p>Quizbot est un nom provisoire. Outil d’aide à l’orthographe, indépendant, sans lien ni affiliation avec les plateformes d’entraînement et de certification en orthographe.</p>
     </div>
     <nav aria-label="Liens utiles">
       <ul>
