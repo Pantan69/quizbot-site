@@ -17,23 +17,14 @@ jobs:
     steps:
       # On interroge « settings » : table lisible par le rôle anonyme PAR CONCEPTION (réglages publics),
       # et c'est une vraie requête SQL, donc elle compte comme activité pour Supabase.
-      # Le repli sur « word_answers » est TEMPORAIRE (transition, à retirer à l'intégration 01-08) :
-      # une fois la table verrouillée, word_answers renvoie 401, donc le repli ne peut plus masquer
-      # une panne de « settings » (l'étape échouera alors, ce qui est voulu).
+      # Pas de repli : « word_answers » est verrouillée (401 pour le rôle anonyme) et ne doit jamais
+      # masquer une panne de « settings » ; si « settings » ne répond pas 200, l'étape échoue (voulu).
       - name: Requête vers Supabase
         run: |
           code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 --retry 3 --retry-delay 10 \
             "https://dvknfvvrqyckimzsvgpm.supabase.co/rest/v1/settings?select=id&limit=1" \
             -H "apikey: sb_publishable_JbdnSPEnPwfmCBwyrysnGw_8EGTHkbA")
           echo "settings: HTTP $code"
-          if [ "$code" = "200" ]; then
-            exit 0
-          fi
-          echo "::warning::settings injoignable (HTTP $code) : repli temporaire sur word_answers (transition, à retirer à l'intégration 01-08)"
-          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 --retry 3 --retry-delay 10 \
-            "https://dvknfvvrqyckimzsvgpm.supabase.co/rest/v1/word_answers?select=word&limit=1" \
-            -H "apikey: sb_publishable_JbdnSPEnPwfmCBwyrysnGw_8EGTHkbA")
-          echo "word_answers (repli): HTTP $code"
           [ "$code" = "200" ]
 
       # GitHub désactive les workflows planifiés d'un dépôt sans commit depuis 60 jours.
