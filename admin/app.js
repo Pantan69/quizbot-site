@@ -1,5 +1,17 @@
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// getSession() peut attendre très longtemps si le navigateur ne joint pas Supabase pour rafraîchir une session
+// périmée (réseau filtré, extension, mise en veille). Au-delà de 6 s on considère qu'il n'y a pas de session et on
+// affiche le formulaire de connexion ; se reconnecter remplace la session périmée.
+async function getSessionSafe() {
+  const timeout = new Promise((resolve) => setTimeout(() => resolve({ data: { session: null } }), 6000));
+  try {
+    return await Promise.race([supa.auth.getSession(), timeout]);
+  } catch (e) {
+    return { data: { session: null } };
+  }
+}
+
 function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
@@ -9,7 +21,7 @@ function euros(cents) {
 }
 
 async function checkAccess() {
-  const { data: { session } } = await supa.auth.getSession();
+  const { data: { session } } = await getSessionSafe();
   const authSection = document.getElementById("auth-section");
   const deniedSection = document.getElementById("denied-section");
   const adminSection = document.getElementById("admin-section");
@@ -55,7 +67,8 @@ document.getElementById("logout-denied-btn").addEventListener("click", async () 
   checkAccess();
 });
 
-supa.auth.onAuthStateChange(() => checkAccess());
+// Différé : voir la note dans compte/app.js (verrou de supabase-js).
+supa.auth.onAuthStateChange(() => { setTimeout(() => { checkAccess(); }, 0); });
 
 // ---------------------------------------------------------------------
 // Ventes

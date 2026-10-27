@@ -1,5 +1,17 @@
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// getSession() peut attendre très longtemps si le navigateur ne joint pas Supabase pour rafraîchir une session
+// périmée (réseau filtré, extension, mise en veille). Au-delà de 6 s on considère qu'il n'y a pas de session et on
+// affiche le formulaire de connexion ; se reconnecter remplace la session périmée.
+async function getSessionSafe() {
+  const timeout = new Promise((resolve) => setTimeout(() => resolve({ data: { session: null } }), 6000));
+  try {
+    return await Promise.race([supa.auth.getSession(), timeout]);
+  } catch (e) {
+    return { data: { session: null } };
+  }
+}
+
 const REF_KEY = "quizbot_referral_code";
 const TABS = ["acheter", "licences", "parrainage", "support", "compte"];
 let currentUserId = null;
@@ -138,7 +150,7 @@ async function refreshAuthUI() {
     authSection.hidden = true; appSection.hidden = true; goodbye.hidden = false;
     return;
   }
-  const { data: { session } } = await supa.auth.getSession();
+  const { data: { session } } = await getSessionSafe();
   if (session?.user) {
     if (session.user.id === currentUserId && !appSection.hidden) return; // rien à recharger
     currentUserId = session.user.id;
@@ -164,9 +176,11 @@ document.getElementById("logout-btn").addEventListener("click", async () => {
   refreshAuthUI();
 });
 
+// IMPORTANT : ne jamais appeler d'autre méthode de supabase-js directement dans cet écouteur (il s'exécute pendant que
+// la bibliothèque tient son verrou : getSession() y attendrait indéfiniment et la page resterait vide). On diffère.
 supa.auth.onAuthStateChange((event) => {
   if (event === "TOKEN_REFRESHED") return;
-  refreshAuthUI();
+  setTimeout(() => { refreshAuthUI(); }, 0);
 });
 
 // ---------------------------------------------------------------------
