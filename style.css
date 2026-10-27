@@ -99,3 +99,39 @@ th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border);
 .bar-fill { height: 100%; background: var(--primary); }
 .waiver-box { background: #fafaf8; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin: 10px 0; font-size: 0.9rem; }
 details summary { cursor: pointer; color: var(--accent); margin: 6px 0; }
+
+/* Connexion / inscription (/compte/ et /admin/) */
+.auth-tabs { display: flex; gap: 8px; margin: 0 0 18px; }
+.auth-tab {
+  flex: 1;
+  color: var(--text);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 8px;
+  font-size: 0.95rem;
+}
+.auth-tab:hover { background: #eeeeea; }
+.auth-tab[aria-selected="true"], .auth-tab[aria-selected="true"]:hover { background: var(--primary); color: white; border-color: var(--primary); }
+.field-label { display: block; margin: 0 0 4px; font-size: 0.9rem; }
+.field-hint { margin: -4px 0 10px; font-size: 0.85rem; }
+.pw-field { position: relative; margin-bottom: 10px; }
+.pw-field input { margin-bottom: 0; padding-right: 46px; }
+.pw-toggle {
+  position: absolute; top: 1px; right: 1px; bottom: 1px; width: 44px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--muted); border-radius: 0 5px 5px 0;
+}
+.pw-toggle:hover { background: #f0f0ee; color: var(--text); }
+.pw-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pw-toggle .icon-off, .pw-toggle[aria-pressed="true"] .icon-on { display: none; }
+.pw-toggle[aria-pressed="true"] .icon-off { display: block; }
+.check-row { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 0.9rem; cursor: pointer; }
+.check-row input { width: 18px; height: 18px; margin: 0; padding: 0; flex: none; }
+.auth-form [role="alert"] { margin: 6px 0 4px; }
+.auth-form [role="alert"]:empty { margin: 0; }
+.auth-form #ref-status { margin: -4px 0 10px; }
+.auth-form #ref-status:empty { margin: 0; }
+.auth-submit { width: 100%; padding: 11px 16px; margin-top: 6px; }
+.auth-tab:focus-visible, .pw-toggle:focus-visible, .auth-submit:focus-visible, .check-row input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pw-toggle:focus-visible { outline-offset: -3px; }

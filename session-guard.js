@@ -2,7 +2,8 @@
 // Si, 8 secondes après le chargement, aucune section de la page n'est affichée, c'est que l'initialisation est
 // bloquée (session enregistrée périmée ou invalide, stockage du navigateur bloqué, extension qui coupe la connexion…).
 // On affiche alors un message clair et un bouton pour repartir d'une session propre.
-// Aucun secret, aucune donnée : le bouton efface seulement les clés « sb-… » de CE site dans le navigateur.
+// Aucun secret, aucune donnée : le bouton efface seulement les clés « sb-… » de CE site dans le navigateur
+// (localStorage et sessionStorage).
 (function () {
   "use strict";
   var IDS = ["auth-section", "app-section", "goodbye-section", "denied-section", "admin-section"];
@@ -18,15 +19,23 @@
     return found;
   }
 
-  function resetSession() {
+  // Efface les clés « sb-… » d'un stockage. La session peut être dans localStorage (« Rester connecté ») OU dans
+  // sessionStorage (case décochée) : on nettoie les deux.
+  function clearSb(getStore) {
     try {
+      var store = getStore();
       var keys = [];
-      for (var i = 0; i < localStorage.length; i++) {
-        var k = localStorage.key(i);
+      for (var i = 0; i < store.length; i++) {
+        var k = store.key(i);
         if (k && k.indexOf("sb-") === 0) keys.push(k);
       }
-      keys.forEach(function (k) { localStorage.removeItem(k); });
+      keys.forEach(function (k) { store.removeItem(k); });
     } catch (e) { /* stockage bloqué : on recharge quand même */ }
+  }
+
+  function resetSession() {
+    clearSb(function () { return localStorage; });
+    clearSb(function () { return sessionStorage; });
     window.location.reload();
   }
 

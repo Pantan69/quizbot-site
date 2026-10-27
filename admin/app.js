@@ -1,4 +1,5 @@
-const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// auth.storage : même rangement de la session que sur /compte/ (voir auth-ui.js). Aucune case ici : on suit le dernier choix fait.
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: QBAuth.storage } });
 
 // getSession() peut attendre très longtemps si le navigateur ne joint pas Supabase pour rafraîchir une session
 // périmée (réseau filtré, extension, mise en veille). Au-delà de 6 s on considère qu'il n'y a pas de session et on
@@ -50,12 +51,34 @@ async function checkAccess() {
   loadAudit();
 }
 
+// Bouton « œil » sur le champ mot de passe (auth-ui.js).
+QBAuth.enhancePasswordFields(document.getElementById("login-form"));
+
 document.getElementById("login-form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
-  const email = document.getElementById("login-email").value.trim();
-  const password = document.getElementById("login-password").value;
-  const { error } = await supa.auth.signInWithPassword({ email, password });
-  document.getElementById("auth-error").textContent = error ? error.message : "";
+  const msg = document.getElementById("auth-error");
+  const btn = document.getElementById("login-btn");
+  const emailEl = document.getElementById("login-email");
+  const passEl = document.getElementById("login-password");
+  const email = emailEl.value.trim();
+  const password = passEl.value;
+  msg.textContent = "";
+  if (!email || !password) {
+    msg.textContent = "Renseigne ton e-mail et ton mot de passe.";
+    (email ? passEl : emailEl).focus();
+    return;
+  }
+  btn.disabled = true;
+  let error = null;
+  try {
+    ({ error } = await supa.auth.signInWithPassword({ email, password }));
+  } catch (e) {
+    error = e;   // réseau coupé : supabase-js peut lever l'erreur au lieu de la renvoyer
+  }
+  btn.disabled = false;
+  // Message en français, jamais le texte brut du serveur ; le mot de passe tapé reste (on peut le vérifier avec l'œil).
+  if (error) { msg.textContent = QBAuth.errorMessage(error, "login"); passEl.focus(); return; }
+  passEl.value = "";
 });
 
 document.getElementById("logout-btn").addEventListener("click", async () => {
@@ -73,6 +96,7 @@ supa.auth.onAuthStateChange(() => { setTimeout(() => { checkAccess(); }, 0); });
 // ---------------------------------------------------------------------
 // Ventes
 // ---------------------------------------------------------------------
+let salesChart = null;
 async function loadSalesChart() {
   const since = new Date();
   since.setDate(since.getDate() - 30);
@@ -89,7 +113,10 @@ async function loadSalesChart() {
     if (day in counts) counts[day] += 1;
   });
 
-  new Chart(document.getElementById("sales-chart"), {
+  // checkAccess() peut tourner deux fois au chargement (appel direct + évènement INITIAL_SESSION) : on détruit le graphique
+  // précédent, sinon Chart.js refuse de redessiner sur le même canevas (erreur « Canvas is already in use »).
+  if (salesChart) salesChart.destroy();
+  salesChart = new Chart(document.getElementById("sales-chart"), {
     type: "bar",
     data: {
       labels: Object.keys(counts),

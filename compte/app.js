@@ -1,4 +1,6 @@
-const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// auth.storage : où supabase-js range la session. QBAuth.storage (auth-ui.js) choisit localStorage ou sessionStorage selon
+// la case « Rester connecté » (décochée : la session disparaît à la fermeture de l'onglet).
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: QBAuth.storage } });
 
 // getSession() peut attendre très longtemps si le navigateur ne joint pas Supabase pour rafraîchir une session
 // périmée (réseau filtré, extension, mise en veille). Au-delà de 6 s on considère qu'il n'y a pas de session et on
@@ -37,15 +39,18 @@ function setMsg(id, text, kind) {
 }
 
 // -- Code parrain dans l'URL (?ref=CODE) : format strict, gardé en mémoire puis retiré de la barre d'adresse.
-(function captureReferral() {
+// Renvoie true si le visiteur arrive avec un code de format valide (il vient d'un lien de parrainage : on lui ouvre « Créer un compte »).
+const ARRIVED_WITH_REF = (function captureReferral() {
   const params = new URLSearchParams(window.location.search);
   const cleaned = (params.get("ref") || "").trim().toUpperCase();
-  if (/^[A-Z0-9]{4,12}$/.test(cleaned)) localStorage.setItem(REF_KEY, cleaned);
+  const valid = /^[A-Z0-9]{4,12}$/.test(cleaned);
+  if (valid) localStorage.setItem(REF_KEY, cleaned);
   if (params.has("ref")) {
     params.delete("ref");
     const qs = params.toString();
     history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : "") + window.location.hash);
   }
+  return valid;
 })();
 
 async function apiCall(path, body) {
@@ -80,21 +85,100 @@ async function checkCode(code) {
 // ---------------------------------------------------------------------
 // Authentification
 // ---------------------------------------------------------------------
+// Les formulaires ne sont (re)construits qu'une fois par affichage : un évènement tardif de supabase-js (INITIAL_SESSION,
+// SIGNED_OUT…) ne doit pas effacer ce que l'utilisateur est en train de taper, ni son message d'erreur.
+let authFormsRendered = false;
+// Premier affichage seulement : arrivée par un lien de parrainage ou par /compte/#creer -> on ouvre « Créer un compte ».
+let preferSignupOnce = ARRIVED_WITH_REF || window.location.hash === "#creer";
+
 function renderAuthForms() {
   const stored = localStorage.getItem(REF_KEY) || "";
-  document.getElementById("auth-forms").innerHTML = `
-    <h3>Connexion / Inscription</h3>
-    <form id="auth-form">
-    <input type="email" id="login-email" placeholder="Email" autocomplete="email" maxlength="254">
-    <input type="password" id="login-password" placeholder="Mot de passe (10 caractères minimum)" autocomplete="current-password" maxlength="72">
-    <input type="text" id="signup-ref" placeholder="Code parrain (optionnel)" value="${esc(stored)}" maxlength="12" autocomplete="off">
-    <p id="ref-status" class="muted"></p>
-    <button id="login-btn" type="submit">Se connecter</button>
-    <button class="secondary" id="signup-btn" type="button">Créer un compte</button>
-    </form>
-    <p class="error" id="auth-error"></p>
+  const savedEmail = QBAuth.getRememberedEmail();
+  const byId = (id) => document.getElementById(id);
+  // Deux écrans distincts (onglets accessibles) : « Se connecter » et « Créer un compte ». Toute valeur dynamique passe par esc().
+  // Les deux panneaux existent dans la page ; celui qui n'est pas affiché est « hidden » (on garde donc ce qui a été tapé).
+  byId("auth-forms").innerHTML = `
+    <div class="auth-tabs" role="tablist" aria-label="Connexion ou création de compte">
+      <button type="button" class="auth-tab" role="tab" id="tab-login" aria-controls="panel-login" aria-selected="true" data-mode="login">Se connecter</button>
+      <button type="button" class="auth-tab" role="tab" id="tab-signup" aria-controls="panel-signup" aria-selected="false" tabindex="-1" data-mode="signup">Créer un compte</button>
+    </div>
+
+    <div role="tabpanel" id="panel-login" aria-labelledby="tab-login">
+      <form id="login-form" class="auth-form" method="post" novalidate>
+        <label class="field-label" for="login-email">Adresse e-mail</label>
+        <input type="email" id="login-email" name="email" autocomplete="username" maxlength="254" autocapitalize="none" spellcheck="false" value="${esc(savedEmail)}">
+        <label class="field-label" for="login-password">Mot de passe</label>
+        <input type="password" id="login-password" name="password" autocomplete="current-password" maxlength="72" data-pw-toggle>
+        <label class="check-row"><input type="checkbox" id="login-stay"${QBAuth.isPersistent() ? " checked" : ""}> <span>Rester connecté</span></label>
+        <label class="check-row"><input type="checkbox" id="login-remember"${savedEmail ? " checked" : ""}> <span>Se souvenir de mon e-mail</span></label>
+        <p class="error" id="login-msg" role="alert"></p>
+        <button id="login-btn" class="auth-submit" type="submit">Se connecter</button>
+      </form>
+    </div>
+
+    <div role="tabpanel" id="panel-signup" aria-labelledby="tab-signup" hidden>
+      <form id="signup-form" class="auth-form" method="post" novalidate>
+        <label class="field-label" for="signup-email">Adresse e-mail</label>
+        <input type="email" id="signup-email" name="email" autocomplete="username" maxlength="254" autocapitalize="none" spellcheck="false">
+        <label class="field-label" for="signup-password">Mot de passe</label>
+        <input type="password" id="signup-password" name="new-password" autocomplete="new-password" maxlength="72" data-pw-toggle aria-describedby="signup-password-hint">
+        <p class="muted field-hint" id="signup-password-hint">${QBAuth.MIN_PASSWORD} caractères minimum.</p>
+        <label class="field-label" for="signup-password2">Confirmer le mot de passe</label>
+        <input type="password" id="signup-password2" name="confirm-password" autocomplete="new-password" maxlength="72" data-pw-toggle>
+        <label class="field-label" for="signup-ref">Code parrain (optionnel)</label>
+        <input type="text" id="signup-ref" value="${esc(stored)}" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <p id="ref-status" class="muted" aria-live="polite"></p>
+        <p class="error" id="signup-msg" role="alert"></p>
+        <button id="signup-btn" class="auth-submit" type="submit">Créer mon compte</button>
+      </form>
+    </div>
   `;
-  const refInput = document.getElementById("signup-ref");
+  QBAuth.enhancePasswordFields(byId("auth-forms"));
+
+  // -- Onglets (motif ARIA « tabs » : flèches gauche/droite, Début/Fin ; seul l'onglet actif est dans l'ordre de tabulation) ----
+  const MODES = ["login", "signup"];
+  function showMode(mode, focusTab) {
+    const other = mode === "login" ? "signup" : "login";
+    MODES.forEach((m) => {
+      const on = m === mode;
+      const tab = byId(`tab-${m}`);
+      tab.setAttribute("aria-selected", on ? "true" : "false");
+      tab.tabIndex = on ? 0 : -1;
+      byId(`panel-${m}`).hidden = !on;
+    });
+    setMsg("login-msg", "");
+    setMsg("signup-msg", "");
+    // Pratique : l'adresse déjà tapée suit d'un écran à l'autre (sans écraser ce qui est déjà saisi).
+    const from = byId(`${other}-email`), to = byId(`${mode}-email`);
+    if (!to.value && from.value) to.value = from.value;
+    if (focusTab) byId(`tab-${mode}`).focus();
+  }
+  MODES.forEach((m) => byId(`tab-${m}`).addEventListener("click", () => showMode(m, false)));
+  byId("auth-forms").querySelector('[role="tablist"]').addEventListener("keydown", (ev) => {
+    const current = byId("tab-signup").getAttribute("aria-selected") === "true" ? "signup" : "login";
+    let next = null;
+    if (ev.key === "ArrowRight" || ev.key === "ArrowLeft") next = current === "login" ? "signup" : "login";
+    else if (ev.key === "Home") next = "login";
+    else if (ev.key === "End") next = "signup";
+    if (next) { ev.preventDefault(); showMode(next, true); }
+  });
+  // Un visiteur qui arrive par un lien de parrainage (?ref=) ou par /compte/#creer commence sur « Créer un compte ».
+  if (preferSignupOnce) showMode("signup", false);
+  preferSignupOnce = false;
+
+  // -- Champs : une erreur est annoncée, le champ fautif est signalé (aria-invalid) et reçoit le focus ----------------------
+  byId("auth-forms").addEventListener("input", (ev) => ev.target.removeAttribute("aria-invalid"));
+  function fail(msgId, text, field) {
+    setMsg(msgId, text, "error");
+    if (field) { field.setAttribute("aria-invalid", "true"); field.focus(); }
+  }
+  async function busy(btn, work) {   // bouton inactif pendant l'appel : pas de double envoi
+    btn.disabled = true;
+    try { return await work(); } finally { btn.disabled = false; }
+  }
+
+  // -- Code parrain (inchangé : vérifié côté serveur, jamais un simple test de format) -------------------------------------
+  const refInput = byId("signup-ref");
   const validateRefField = async () => {
     const v = refInput.value.trim().toUpperCase();
     if (!v) return setMsg("ref-status", "");
@@ -106,40 +190,79 @@ function renderAuthForms() {
       setMsg("ref-status", e.message, "error");
     }
   };
-  refInput.addEventListener("blur", validateRefField);
+  refInput.addEventListener("blur", (ev) => {
+    // Si le clic va sur « Créer mon compte », on ne vérifie pas ici : le code est de toute façon vérifié à l'envoi, et un message
+    // qui apparaîtrait maintenant décalerait le bouton entre l'appui et le relâchement de la souris (le clic serait perdu).
+    if (ev.relatedTarget && ev.relatedTarget.id === "signup-btn") return;
+    validateRefField();
+  });
+  refInput.addEventListener("input", () => setMsg("ref-status", ""));   // le code change : l'ancien verdict ne vaut plus
   if (stored) validateRefField();
 
-  document.getElementById("auth-form").addEventListener("submit", async (ev) => {
+  // -- Connexion ---------------------------------------------------------------------------------------------------
+  byId("login-remember").addEventListener("change", (ev) => {
+    const email = byId("login-email").value.trim();
+    // Décoché : l'adresse mémorisée est effacée tout de suite. Coché : on la garde dès qu'elle ressemble à une adresse.
+    if (!ev.target.checked) QBAuth.rememberEmail("", false);
+    else if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) QBAuth.rememberEmail(email, true);
+  });
+  byId("login-form").addEventListener("submit", async (ev) => {
     ev.preventDefault();
-    const email = document.getElementById("login-email").value.trim();
-    const password = document.getElementById("login-password").value;
-    if (!email || !password) return setMsg("auth-error", "Renseigne ton email et ton mot de passe.", "error");
-    const { error } = await supa.auth.signInWithPassword({ email, password });
-    // Message volontairement générique : ne pas révéler si l'email existe.
-    setMsg("auth-error", error ? "Email ou mot de passe incorrect." : "", "error");
+    const emailEl = byId("login-email"), passEl = byId("login-password");
+    const email = emailEl.value.trim();
+    const password = passEl.value;
+    setMsg("login-msg", "");
+    if (!email || !password) return fail("login-msg", "Renseigne ton e-mail et ton mot de passe.", email ? passEl : emailEl);
+    QBAuth.setPersistent(byId("login-stay").checked);                 // AVANT la connexion : décide où la session sera rangée
+    QBAuth.rememberEmail(email, byId("login-remember").checked);      // l'adresse seule, jamais le mot de passe
+    await busy(byId("login-btn"), async () => {
+      let error = null;
+      try {
+        ({ error } = await supa.auth.signInWithPassword({ email, password }));
+      } catch (e) {
+        error = e;   // réseau coupé : supabase-js peut lever l'erreur au lieu de la renvoyer
+      }
+      // Message en français et volontairement générique : ne pas révéler si l'e-mail existe.
+      if (error) return fail("login-msg", QBAuth.errorMessage(error, "login"), passEl);   // le mot de passe tapé reste : on peut le vérifier avec l'œil
+      passEl.value = "";
+    });
   });
 
-  document.getElementById("signup-btn").onclick = async () => {
-    const email = document.getElementById("login-email").value.trim();
-    const password = document.getElementById("login-password").value;
+  // -- Création de compte ------------------------------------------------------------------------------------------
+  byId("signup-form").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const emailEl = byId("signup-email"), passEl = byId("signup-password"), pass2El = byId("signup-password2");
+    const email = emailEl.value.trim();
+    const password = passEl.value;
     const refRaw = refInput.value.trim().toUpperCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setMsg("auth-error", "Adresse email invalide.", "error");
-    if (password.length < 10) return setMsg("auth-error", "Le mot de passe doit faire au moins 10 caractères.", "error");
-    if (refRaw) {
-      try {
-        if (!(await checkCode(refRaw))) return setMsg("auth-error", "Code parrain invalide.", "error");
-      } catch (e) {
-        return setMsg("auth-error", e.message, "error");
+    setMsg("signup-msg", "");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail("signup-msg", "Adresse e-mail invalide.", emailEl);
+    if (password.length < QBAuth.MIN_PASSWORD) return fail("signup-msg", `Le mot de passe doit faire au moins ${QBAuth.MIN_PASSWORD} caractères.`, passEl);
+    if (pass2El.value !== password) return fail("signup-msg", "Les deux mots de passe ne sont pas identiques.", pass2El);
+    await busy(byId("signup-btn"), async () => {
+      if (refRaw) {
+        try {
+          if (!(await checkCode(refRaw))) return fail("signup-msg", "Code parrain invalide.", refInput);
+        } catch (e) {
+          return fail("signup-msg", e.message, refInput);
+        }
       }
-    }
-    const { data, error } = await supa.auth.signUp({
-      email, password,
-      options: { data: refRaw ? { referral_code: refRaw } : {} },
+      let result;
+      try {
+        result = await supa.auth.signUp({
+          email, password,
+          options: { data: refRaw ? { referral_code: refRaw } : {} },
+        });
+      } catch (e) {
+        result = { error: e };
+      }
+      if (result.error) return fail("signup-msg", QBAuth.errorMessage(result.error, "signup"));
+      localStorage.removeItem(REF_KEY); // le parrainage est désormais enregistré sur le compte
+      passEl.value = "";
+      pass2El.value = "";
+      if (!result.data.session) setMsg("signup-msg", "Compte créé -- consulte ta boîte mail pour confirmer ton adresse, puis connecte-toi.", "success");
     });
-    if (error) return setMsg("auth-error", "Inscription impossible : " + error.message, "error");
-    localStorage.removeItem(REF_KEY); // le parrainage est désormais enregistré sur le compte
-    if (!data.session) setMsg("auth-error", "Compte créé -- consulte ta boîte mail pour confirmer ton adresse, puis connecte-toi.", "success");
-  };
+  });
 }
 
 async function refreshAuthUI() {
@@ -156,6 +279,9 @@ async function refreshAuthUI() {
     currentUserId = session.user.id;
     authSection.hidden = true;
     appSection.hidden = false;
+    // On détruit les formulaires : plus aucun mot de passe tapé ne reste dans la page une fois connecté (ni après déconnexion).
+    document.getElementById("auth-forms").innerHTML = "";
+    authFormsRendered = false;
     document.getElementById("user-email").textContent = session.user.email;
     await loadLicenses();
     loadProducts();
@@ -166,7 +292,7 @@ async function refreshAuthUI() {
     currentUserId = null;
     authSection.hidden = false;
     appSection.hidden = true;
-    renderAuthForms();
+    if (!authFormsRendered) { renderAuthForms(); authFormsRendered = true; }
   }
 }
 
@@ -587,6 +713,7 @@ async function deleteAccount(confirmForfeit) {
   accountDeleted = true;
   await supa.auth.signOut({ scope: "local" });
   localStorage.removeItem(REF_KEY);
+  QBAuth.rememberEmail("", false); // l'adresse mémorisée pour la connexion est une donnée personnelle : effacée aussi
   document.getElementById("delete-password-input").value = "";
   refreshAuthUI();
 }
