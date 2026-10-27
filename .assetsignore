@@ -1,0 +1,7 @@
+# Fichiers du dépôt qui ne doivent PAS être servis sur le site public (Cloudflare Workers : .assetsignore).
+.github
+.gitignore
+.assetsignore
+PRODUCT.md
+DESIGN.md
+.impeccable
